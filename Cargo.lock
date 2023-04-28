@@ -62,6 +62,7 @@ name = "surrealdb-derive"
 version = "0.7.0"
 dependencies = [
  "quote",
+ "serde",
  "storekey",
  "syn 1.0.99",
 ]

@@ -1,9 +1,23 @@
 // cargo expand --example key
 
 use surrealdb_derive::Key;
+use serde::{Serialize, Deserialize};
 
 mod err {
-	pub type Error = ();
+	#[derive(Debug)]
+	pub struct Error;
+
+	impl From<storekey::encode::Error> for Error {
+		fn from(_: storekey::encode::Error) -> Self {
+			unimplemented!();
+		}
+	}
+
+	impl From<storekey::decode::Error> for Error {
+		fn from(_: storekey::decode::Error) -> Self {
+			unimplemented!();
+		}
+	}
 }
 
 mod sql {
@@ -13,7 +27,7 @@ mod sql {
 	}
 }
 
-#[derive(Key)]
+#[derive(Serialize, Deserialize, Key)]
 pub struct NsOwned {
 	__: u8,
 	_a: u8,
@@ -23,11 +37,8 @@ pub struct NsOwned {
 }
 
 /// WIP: Support for borrowed keys.
-#[derive(Key)]
+#[derive(Serialize, Deserialize, Key)]
 pub struct NsBorrowed<'a>
-// Extra where bound for testing macro.
-where
-	'a: 'static,
 {
 	__: u8,
 	_a: u8,
@@ -35,3 +46,5 @@ where
 	_c: u8,
 	pub ns: &'a str,
 }
+
+fn main() {}

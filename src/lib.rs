@@ -68,12 +68,18 @@ pub fn key(input: TokenStream) -> TokenStream {
 	let generics = input.generics;
 	let (impl_generics, ty_generics, where_clause) = generics.split_for_impl();
 	assert!(generics.lifetimes().count() <= 1);
-	let lifetime: quote::__private::TokenStream =
+	let (lifetime, from_owned) =
 		if let Some(lifetime_def) = generics.lifetimes().next() {
 			let lifetime = &lifetime_def.lifetime;
-			quote! {#lifetime}
+			(quote! {#lifetime}, quote!{})
 		} else {
-			quote! {}
+			(quote! {}, quote!{
+				impl #impl_generics From<Vec<u8>> for #name #ty_generics #where_clause {
+					fn from(v: Vec<u8>) -> Self {
+						Self::decode(&v).unwrap()
+					}
+				}
+			})
 		};
 
 	// Generate the output
@@ -91,14 +97,10 @@ pub fn key(input: TokenStream) -> TokenStream {
 			}
 		}
 
-		impl #impl_generics From<Vec<u8>> for #name #ty_generics #where_clause {
-			fn from(v: Vec<u8>) -> Self {
-				Self::decode(&v).unwrap()
-			}
-		}
+		#from_owned
 
 		impl #impl_generics From<&#lifetime Vec<u8>> for #name #ty_generics #where_clause {
-			fn from(v: &Vec<u8>) -> Self {
+			fn from(v: &#lifetime Vec<u8>) -> Self {
 				Self::decode(v).unwrap()
 			}
 		}
