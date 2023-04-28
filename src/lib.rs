@@ -97,7 +97,7 @@ pub fn key(input: TokenStream) -> TokenStream {
 			}
 		}
 
-		impl #impl_generics From<&Vec<u8>> for #name #ty_generics #where_clause {
+		impl #impl_generics From<&#lifetime Vec<u8>> for #name #ty_generics #where_clause {
 			fn from(v: &Vec<u8>) -> Self {
 				Self::decode(v).unwrap()
 			}
